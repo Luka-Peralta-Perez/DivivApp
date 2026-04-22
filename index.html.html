@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DivivApp – Prototipo Funcional</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --teal: #29B6C5;
+    --teal-light: #4DD0E1;
+    --teal-dark: #0097A7;
+    --orange: #F5A623;
+    --orange-dark: #E07B00;
+    --gradient: linear-gradient(135deg, #29B6C5 0%, #F5A623 100%);
+    --gradient-h: linear-gradient(90deg, #29B6C5 0%, #F5A623 100%);
+    --bg: #F0F4F8;
+    --card: #FFFFFF;
+    --text: #1A2332;
+    --text-sub: #6B7A8D;
+    --border: #E2E8F0;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --font: 'Nunito', sans-serif;
+  }
+
+  body {
+    font-family: var(--font);
+    background: #CBD5E0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  .phone {
+    width: 390px;
+    height: 780px;
+    background: var(--bg);
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.35), inset 0 0 0 2px rgba(255,255,255,0.15);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .status-bar {
+    height: 28px;
+    background: var(--gradient);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    flex-shrink: 0;
+  }
+  .status-bar span { font-size: 11px; color: #fff; font-weight: 700; }
+
+  .screen {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+  }
+  .screen.active { display: flex; }
+
+  .screen-body {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .screen-body::-webkit-scrollbar { display: none; }
+
+  .topbar {
+    background: var(--gradient);
+    padding: 14px 18px 18px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .topbar-row { display: flex; align-items: center; gap: 10px; }
+  .topbar-title { font-size: 18px; font-weight: 800; }
+  .topbar-sub { font-size: 12px; opacity: .85; }
+  .topbar-icon {
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    font-size: 17px;
+  }
+  .topbar-icon:hover { background: rgba(255,255,255,0.4); }
+  .ml-auto { margin-left: auto; }
+  .back-btn { cursor: pointer; font-size: 20px; }
+
+  .search-bar {
+    background: var(--gradient);
+    padding: 0 16px 14px;
+    flex-shrink: 0;
+  }
+  .search-input {
+    width: 100%;
+    background: rgba(255,255,255,0.95);
+    border: none;
+    border-radius: 10px;
+    padding: 9px 12px 9px 36px;
+    font-size: 14px;
+    font-family: var(--font);
+    outline: none;
+    color: var(--text);
+    position: relative;
+  }
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--text-sub); }
+
+  .card {
+    background: var(--card);
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    padding: 14px;
+    margin: 0 14px 12px;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    padding: 14px 14px 0;
+  }
+  .stat-card {
+    flex: 1;
+    background: var(--card);
+    border-radius: 12px;
+    padding: 11px 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    text-align: center;
+  }
+  .stat-label { font-size: 10px; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .stat-val { font-size: 22px; font-weight: 800; margin-top: 2px; }
+  .stat-val.teal { color: var(--teal-dark); }
+  .stat-val.orange { color: var(--orange-dark); }
+  .stat-val.dark { color: var(--text); }
+
+  .mesa-card {
+    background: var(--card);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin: 12px 14px 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+  }
+  .mesa-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.12); }
+  .mesa-card-top { display: flex; align-items: center; gap: 12px; }
+  .mesa-avatar {
+    width: 44px; height: 44px;
+    background: var(--gradient);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 800; color: #fff;
+    flex-shrink: 0;
+  }
+  .mesa-info { flex: 1; }
+  .mesa-name { font-size: 15px; font-weight: 800; color: var(--text); }
+  .mesa-pax { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+  .badge {
+    font-size: 11px; font-weight: 700; padding: 3px 9px;
+    border-radius: 20px;
+  }
+  .badge.abierta { background: #D4EDDA; color: #1E7E34; }
+  .badge.cerrando { background: #FFF3CD; color: #856404; }
+  .badge.finalizada { background: #F8D7DA; color: #721C24; }
+  .divider { height: 1px; background: var(--border); margin: 10px 0; }
+  .mesa-total-label { font-size: 11px; color: var(--text-sub); }
+  .mesa-total-val { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 2px; }
+
+  .fab {
+    position: absolute;
+    bottom: 22px; right: 22px;
+    width: 54px; height: 54px;
+    background: var(--gradient);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; color: #fff;
+    box-shadow: 0 4px 16px rgba(245,166,35,0.45);
+    cursor: pointer;
+    transition: transform .15s;
+    z-index: 10;
+  }
+  .fab:hover { transform: scale(1.08); }
+
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card);
+    padding: 12px 14px;
+    margin: 0 14px 10px;
+    border-radius: 13px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    transition: transform .13s;
+  }
+  .menu-item:hover { transform: translateX(3px); }
+  .menu-img {
+    width: 64px; height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #E0E0E0;
+    flex-shrink: 0;
+    font-size: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-sub);
+    overflow: hidden;
+  }
+  .menu-img img { width: 100%; height: 100%; object-fit: cover; }
+  .menu-info { flex: 1; }
+  .menu-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .menu-cat { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+  .menu-price { font-size: 15px; font-weight: 800; color: var(--teal-dark); margin-top: 4px; }
+
+  .modal-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: none;
+    align-items: flex-end;
+    z-index: 50;
+  }
+  .modal-overlay.open { display: flex; animation: fadein .2s; }
+  @keyframes fadein { from { opacity:0 } to { opacity:1 } }
+  .bottom-sheet {
+    background: var(--card);
+    border-radius: 22px 22px 0 0;
+    width: 100%;
+    padding: 20px 18px 28px;
+    animation: slideup .25s ease-out;
+  }
+  @keyframes slideup { from { transform: translateY(60px); opacity:0 } to { transform: translateY(0); opacity:1 } }
+  .sheet-handle { width: 40px; height: 4px; background: #CBD5E0; border-radius: 2px; margin: 0 auto 18px; }
+  .sheet-title { font-size: 17px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .sheet-price { font-size: 22px; font-weight: 800; color: var(--teal-dark); }
+  .sheet-link { font-size: 12px; color: var(--teal); text-decoration: underline; cursor: pointer; margin-top: 2px; display: inline-block; }
+  .sheet-label { font-size: 12px; color: var(--text-sub); font-weight: 600; margin: 14px 0 8px; text-transform: uppercase; letter-spacing: .4px; }
+  .comensal-option {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .comensal-option:hover, .comensal-option.selected {
+    border-color: var(--teal);
+    background: rgba(41,182,197,0.06);
+  }
+  .comensal-option .avatar-s {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(41,182,197,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; color: var(--teal-dark);
+  }
+  .comensal-option span { font-size: 14px; font-weight: 600; color: var(--text); }
+  .sheet-img {
+    width: 100%; height: 130px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: linear-gradient(135deg,#e0f7fa,#fff8e1);
+    margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 40px;
+  }
+  .sheet-actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-cancel {
+    flex: 1; padding: 12px;
+    border: 2px solid var(--border);
+    background: transparent;
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 700;
+    color: var(--text-sub);
+    cursor: pointer;
+  }
+  .btn-assign {
+    flex: 1; padding: 12px;
+    background: var(--gradient-h);
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .detalle-hero {
+    height: 170px;
+    background: linear-gradient(135deg,#e0f7fa,#fff3e0);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 60px;
+    flex-shrink: 0;
+  }
+  .tag { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin: 3px; }
+  .tag.green { background: #D4EDDA; color: #1E7E34; }
+  .tag.yellow { background: #FFF3CD; color: #856404; }
+  .tag.red { background: #F8D7DA; color: #721C24; }
+  .nutr-row { display: flex; gap: 10px; margin: 12px 0; }
+  .nutr-box { flex: 1; background: #F7FBFF; border-radius: 10px; padding: 10px; text-align: center; }
+  .nutr-val { font-size: 20px; font-weight: 800; color: var(--text); }
+  .nutr-label { font-size: 10px; color: var(--text-sub); font-weight: 600; margin-top: 2px; }
+  .ia-box {
+    background: linear-gradient(135deg, rgba(41,182,197,0.08), rgba(245,166,35,0.08));
+    border: 1.5px solid rgba(41,182,197,0.25);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .ia-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 8px; }
+  .ia-title .star { font-size: 20px; }
+  .ia-text { font-size: 13px; color: var(--text-sub); line-height: 1.6; }
+  .shimmer {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { 0%{background-position:200%} 100%{background-position:-200%} }
+
+  /* ── CHECKOUT ── */
+  .checkout-stat { text-align: center; }
+  .checkout-stat .label { font-size: 11px; color: var(--text-sub); font-weight: 600; text-transform: uppercase; }
+  .checkout-stat .amount { font-size: 18px; font-weight: 800; margin-top: 3px; }
+  .pax-card {
+    background: var(--card);
+    border-radius: 14px;
+    margin: 0 14px 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+  .pax-header {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px;
+    border-left: 4px solid var(--teal);
+  }
+  .pax-header.paid-border { border-left-color: var(--green); }
+  .pax-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(41,182,197,0.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0; color: var(--teal-dark);
+  }
+  .pax-name { font-size: 14px; font-weight: 800; color: var(--text); flex: 1; }
+  .pax-total { font-size: 16px; font-weight: 800; color: var(--text); }
+  .btn-pagar {
+    font-size: 12px; font-weight: 700;
+    background: var(--gradient-h);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-family: var(--font);
+    white-space: nowrap;
+  }
+  .btn-pagado {
+    font-size: 12px; font-weight: 700;
+    background: #D4EDDA;
+    color: #1E7E34;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 12px;
+    cursor: default;
+    font-family: var(--font);
+  }
+  .pax-items { padding: 0 14px 12px; }
+  .pax-item { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-sub); padding: 3px 0; }
+  .pax-item span:last-child { font-weight: 600; color: var(--text); }
+
+  /* ── PAYMENT MODE TOGGLE ── */
+  .payment-mode-toggle {
+    display: flex;
+    background: #EDF2F7;
+    border-radius: 12px;
+    padding: 4px;
+    margin: 14px 14px 0;
+    gap: 4px;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 9px 8px;
+    border: none;
+    border-radius: 9px;
+    font-family: var(--font);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-sub);
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  .mode-btn.active {
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .mode-btn .mode-icon { font-size: 15px; }
+
+  /* ── GROUP PAYMENT CARD ── */
+  .group-pay-card {
+    background: var(--card);
+    border-radius: 18px;
+    margin: 14px 14px 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    overflow: hidden;
+  }
+  .group-pay-header {
+    background: linear-gradient(135deg, rgba(41,182,197,0.08), rgba(245,166,35,0.08));
+    border-bottom: 1px solid var(--border);
+    padding: 16px 16px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .group-icon-circle {
+    width: 46px; height: 46px;
+    background: var(--gradient);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .group-pay-label { font-size: 11px; color: var(--text-sub); font-weight: 600; text-transform: uppercase; letter-spacing: .4px; }
+  .group-pay-amount { font-size: 26px; font-weight: 800; color: var(--text); margin-top: 2px; }
+  .group-pay-pax-label { font-size: 12px; color: var(--text-sub); margin-top: 3px; }
+
+  .group-pay-breakdown {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .group-breakdown-title {
+    font-size: 11px; font-weight: 700; color: var(--text-sub);
+    text-transform: uppercase; letter-spacing: .4px;
+    margin-bottom: 8px;
+  }
+  .group-breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0;
+    font-size: 13px; color: var(--text-sub);
+  }
+  .group-breakdown-row .gbr-name { display: flex; align-items: center; gap: 6px; }
+  .gbr-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
+  .group-breakdown-row .gbr-amt { font-weight: 700; color: var(--text); font-size: 13px; }
+
+  .group-pay-actions { padding: 14px 16px; }
+  .group-pay-note {
+    font-size: 11px; color: var(--text-sub);
+    background: #F7FBFF;
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .btn-group-pay {
+    width: 100%;
+    padding: 14px;
+    background: var(--gradient-h);
+    border: none;
+    border-radius: 12px;
+    font-family: var(--font);
+    font-size: 15px; font-weight: 800;
+    color: #fff;
+    cursor: pointer;
+    transition: opacity .15s, transform .1s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-group-pay:hover { opacity: .92; transform: scale(0.99); }
+  .btn-group-pay:disabled {
+    background: #CBD5E0;
+    cursor: default;
+    transform: none;
+  }
+  .group-paid-banner {
+    display: flex; align-items: center; gap: 10px;
+    background: #D4EDDA;
+    border-radius: 12px;
+    padding: 14px;
+    font-size: 14px; font-weight: 700; color: #1E7E34;
+  }
+
+  /* ── MODAL PAGO ── */
+  .metodo-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 13px 14px;
+    border: 2px solid var(--border);
+    border-radius: 11px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    font-family: var(--font);
+    font-size: 14px; font-weight: 700;
+    color: var(--text);
+    background: transparent;
+    width: 100%;
+    transition: border-color .15s, background .15s;
+  }
+  .metodo-btn:hover { border-color: var(--teal); background: rgba(41,182,197,0.05); }
+  .metodo-icon { font-size: 22px; }
+
+  /* ── LOGIN ── */
+  #screen-login { background: var(--bg); }
+  .login-bg {
+    flex: 1;
+    background: linear-gradient(160deg, #e0f7fa 0%, #f0f4f8 60%, #fff8e1 100%);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .login-card {
+    background: #fff;
+    border-radius: 22px;
+    padding: 32px 24px;
+    margin: 24px;
+    box-shadow: 0 8px 40px rgba(41,182,197,0.15);
+    text-align: center;
+  }
+  .login-logo { font-size: 52px; margin-bottom: 8px; }
+  .login-appname { font-size: 28px; font-weight: 800; color: var(--text); }
+  .login-appname span { color: var(--teal); }
+  .login-tagline { font-size: 12px; color: var(--text-sub); margin-top: 4px; margin-bottom: 28px; }
+  .google-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 13px 18px;
+    background: #fff;
+    font-family: var(--font);
+    font-size: 15px; font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    transition: box-shadow .15s;
+  }
+  .google-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+  .google-btn .g-icon { font-size: 20px; }
+  .login-terms { font-size: 11px; color: var(--text-sub); margin-top: 14px; line-height: 1.5; }
+  .login-terms a { color: var(--teal); }
+
+  /* ── MODAL NUEVA MESA ── */
+  .input-field {
+    width: 100%;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family: var(--font);
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    margin-bottom: 10px;
+    transition: border-color .15s;
+  }
+  .input-field:focus { border-color: var(--teal); }
+  .input-label { font-size: 12px; font-weight: 700; color: var(--text-sub); margin-bottom: 5px; display: block; text-transform: uppercase; letter-spacing: .4px; }
+  .pax-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 10px; }
+  .pax-tag { background: rgba(41,182,197,0.1); border: 1.5px solid var(--teal); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; color: var(--teal-dark); display: flex; align-items: center; gap: 5px; }
+  .pax-tag .remove { cursor: pointer; color: var(--teal-dark); font-size: 14px; }
+  .pax-input-row { display: flex; gap: 8px; }
+  .pax-input-row .input-field { margin-bottom: 0; }
+  .btn-add { padding: 10px 14px; background: var(--gradient-h); border: none; border-radius: 10px; color: #fff; font-family: var(--font); font-size: 13px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+
+  /* ── TOAST ── */
+  .toast {
+    position: absolute;
+    bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: #1A2332;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity .3s;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  /* ── CHIPS / CATEGORIES ── */
+  .chips-row {
+    display: flex; gap: 8px; padding: 0 14px 10px;
+    overflow-x: auto; scrollbar-width: none;
+  }
+  .chips-row::-webkit-scrollbar { display: none; }
+  .chip {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px; font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    border: 2px solid var(--border);
+    background: var(--card);
+    color: var(--text-sub);
+    transition: all .15s;
+  }
+  .chip.active { background: var(--gradient-h); border-color: transparent; color: #fff; }
+
+  .pb { padding-bottom: 80px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span>9:41</span>
+    <span>📶 🔋</span>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="screen-login" class="screen active">
+    <div class="login-bg">
+      <div>
+        <div class="login-card">
+          <div class="login-logo">🍽️</div>
+          <div class="login-appname">Diviv<span>App</span></div>
+          <div class="login-tagline">División inteligente de cuentas</div>
+          <button class="google-btn" onclick="navigate('screen-dashboard')">
+            <span class="g-icon">🔵</span>
+            Iniciar sesión con Google
+          </button>
+          <div class="login-terms">Al iniciar sesión, aceptás los <a href="#">términos de servicio</a> y <a href="#">política de privacidad</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="screen-dashboard" class="screen">
+    <div class="topbar">
+      <div class="topbar-row">
+        <div class="topbar-icon">🍽️</div>
+        <div>
+          <div class="topbar-title">DivivApp</div>
+          <div class="topbar-sub">Mis Mesas</div>
+        </div>
+        <div class="topbar-icon ml-auto" onclick="navigate('screen-login')" title="Cerrar sesión">↪</div>
+      </div>
+    </div>
+    <div class="screen-body pb">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Activas</div>
+          <div class="stat-val teal" id="stat-activas">2</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-val orange" id="stat-total">$44,200</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Personas</div>
+          <div class="stat-val dark" id="stat-personas">12</div>
+        </div>
+      </div>
+      <div id="mesas-list" style="margin-top:4px;"></div>
+    </div>
+    <div class="fab" onclick="openModal('modal-nueva-mesa')">+</div>
+  </div>
+
+  <!-- MENÚ -->
+  <div id="screen-menu" class="screen">
+    <div class="topbar">
+      <div class="topbar-row">
+        <span class="back-btn" onclick="navigate('screen-dashboard')">←</span>
+        <div style="margin-left:6px;">
+          <div class="topbar-title" id="menu-title">Mesa 1</div>
+          <div class="topbar-sub" id="menu-sub">4 comensales</div>
+        </div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input type="text" class="search-input" placeholder="Buscar plato..." id="search-input" oninput="filterMenu()">
+      </div>
+    </div>
+    <div class="chips-row" id="chips-row" style="padding-top:12px;"></div>
+    <div class="screen-body pb" id="menu-list-body">
+      <div id="menu-list"></div>
+    </div>
+  </div>
+
+  <!-- DETALLE PLATO -->
+  <div id="screen-detalle" class="screen">
+    <div class="topbar">
+      <div class="topbar-row">
+        <span class="back-btn" onclick="navigate('screen-menu')">←</span>
+        <div class="topbar-title" style="margin-left:8px;">Detalle del Plato</div>
+      </div>
+    </div>
+    <div class="screen-body pb">
+      <div class="detalle-hero" id="detalle-hero">🍄</div>
+      <div style="padding: 16px 16px 0;">
+        <div style="font-size:20px;font-weight:800;color:var(--text);" id="detalle-nombre">Risotto de Hongos</div>
+        <div style="font-size:24px;font-weight:800;color:var(--teal-dark);margin:4px 0 2px;" id="detalle-precio">$3,200</div>
+        <div style="font-size:12px;color:var(--text-sub);" id="detalle-cat">Principales</div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:10px;">Ingredientes</div>
+        <div id="detalle-ingredientes" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <span style="font-size:18px;">⚠️</span>
+          <div style="font-size:14px;font-weight:800;color:var(--text);">Información Nutricional y Alérgenos</div>
+        </div>
+        <div class="nutr-row" id="detalle-nutr"></div>
+        <div style="font-size:12px;color:var(--text-sub);font-weight:600;margin-bottom:6px;">Etiquetas de salud:</div>
+        <div id="detalle-tags"></div>
+        <div style="font-size:12px;color:var(--text-sub);font-weight:600;margin-top:10px;margin-bottom:6px;">Advertencias:</div>
+        <div id="detalle-warns"></div>
+      </div>
+      <div class="ia-box card" style="margin-top:0;">
+        <div class="ia-title"><span class="star">✨</span> Recomendación de Maridaje IA</div>
+        <div class="ia-text" id="ia-text">
+          <div class="shimmer" style="height:12px;width:90%;margin-bottom:8px;"></div>
+          <div class="shimmer" style="height:12px;width:75%;margin-bottom:8px;"></div>
+          <div class="shimmer" style="height:12px;width:85%;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKOUT -->
+  <div id="screen-checkout" class="screen">
+    <div class="topbar">
+      <div class="topbar-row">
+        <span class="back-btn" onclick="navigate('screen-menu')">←</span>
+        <div style="margin-left:8px;">
+          <div class="topbar-title">Cierre de Cuenta</div>
+          <div class="topbar-sub" id="checkout-sub">Mesa 1</div>
+        </div>
+      </div>
+    </div>
+    <div class="screen-body pb">
+      <!-- Resumen totales -->
+      <div class="card" style="display:flex;justify-content:space-between;margin-top:14px;">
+        <div class="checkout-stat">
+          <div class="label">Total</div>
+          <div class="amount" id="co-total">$15,900</div>
+        </div>
+        <div class="checkout-stat">
+          <div class="label">Pagado</div>
+          <div class="amount" style="color:var(--green);" id="co-pagado">$0</div>
+        </div>
+        <div class="checkout-stat">
+          <div class="label">Pendiente</div>
+          <div class="amount" style="color:var(--orange-dark);" id="co-pendiente">$15,900</div>
+        </div>
+      </div>
+
+      <!-- ── TOGGLE MODO DE PAGO ── -->
+      <div class="payment-mode-toggle">
+        <button class="mode-btn active" id="btn-mode-individual" onclick="setPaymentMode('individual')">
+          <span class="mode-icon">👤</span> Pago individual
+        </button>
+        <button class="mode-btn" id="btn-mode-grupal" onclick="setPaymentMode('grupal')">
+          <span class="mode-icon">🤝</span> Pagan todos juntos
+        </button>
+      </div>
+
+      <!-- Contenido dinámico según modo -->
+      <div id="checkout-content"></div>
+    </div>
+  </div>
+
+  <!-- ════ MODALS ════ -->
+
+  <!-- MODAL: Asignar Pedido -->
+  <div class="modal-overlay" id="modal-asignar" onclick="closeModal('modal-asignar',event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div class="sheet-img" id="sheet-img">🍄</div>
+      <div class="sheet-title" id="sheet-nombre">Risotto de Hongos</div>
+      <div class="sheet-price" id="sheet-precio">$3,200</div>
+      <span class="sheet-link" onclick="goDetalle()">Ver detalles, alérgenos e IA →</span>
+      <div class="sheet-label">Seleccionar comensal</div>
+      <div id="comensales-list"></div>
+      <div class="sheet-actions">
+        <button class="btn-cancel" onclick="closeModal('modal-asignar')">Cancelar</button>
+        <button class="btn-assign" onclick="asignarPedido()">Asignar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Nueva Mesa -->
+  <div class="modal-overlay" id="modal-nueva-mesa" onclick="closeModal('modal-nueva-mesa',event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:16px;">Nueva Mesa</div>
+      <label class="input-label">Número de mesa</label>
+      <input type="number" class="input-field" id="nm-numero" placeholder="Ej: 6" min="1">
+      <label class="input-label">Comensales</label>
+      <div class="pax-tags" id="nm-tags"></div>
+      <div class="pax-input-row">
+        <input type="text" class="input-field" id="nm-pax-input" placeholder="Nombre del comensal..." style="flex:1;">
+        <button class="btn-add" onclick="addPaxTag()">+ Agregar</button>
+      </div>
+      <div class="sheet-actions" style="margin-top:16px;">
+        <button class="btn-cancel" onclick="closeModal('modal-nueva-mesa')">Cancelar</button>
+        <button class="btn-assign" onclick="crearMesa()">Crear Mesa</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Registrar Pago -->
+  <div class="modal-overlay" id="modal-pago" onclick="closeModal('modal-pago',event)">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+      <div class="sheet-handle"></div>
+      <div style="font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px;" id="pago-title-label">Registrar Pago</div>
+      <div style="font-size:13px;color:var(--text-sub);margin-bottom:16px;" id="pago-nombre">Ana García – $7,700</div>
+      <div class="sheet-label">Método de pago</div>
+      <button class="metodo-btn" onclick="registrarPago('efectivo')"><span class="metodo-icon">💵</span> Efectivo</button>
+      <button class="metodo-btn" onclick="registrarPago('tarjeta')"><span class="metodo-icon">💳</span> Tarjeta</button>
+      <button class="metodo-btn" onclick="registrarPago('app_externa')"><span class="metodo-icon">📱</span> App externa (MercadoPago, etc.)</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────────
+
+const menuData = [
+  { id:1, nombre:'Risotto de Hongos',  cat:'Principales', precio:3200, emoji:'🍄', ingredientes:['Arroz arborio','Hongos porcini','Parmesano reggiano','Vino blanco','Mantequilla','Cebolla','Caldo de verduras'], cals:420, prot:'12g', grasa:'18g', tags:['Vegetariano','Sin gluten'], warns:['Contiene lácteos'], ia:'Para este exquisito risotto de hongos, recomiendo un vino blanco con cuerpo y elegancia. Un Chardonnay italiano de la región de Friuli-Venezia Giulia sería ideal, con sus notas de frutos secos y textura cremosa.' },
+  { id:2, nombre:'Salmón Grillado',    cat:'Principales', precio:4500, emoji:'🐟', ingredientes:['Salmón atlántico','Limón','Alcaparras','Eneldo','Aceite de oliva'], cals:380, prot:'35g', grasa:'22g', tags:['Sin gluten','Alto en proteínas'], warns:['Contiene pescado'], ia:'El salmón grillado marida perfectamente con un Sauvignon Blanc fresco. Te recomiendo uno del Valle del Maipo chileno, con su acidez viva y aromas herbales que realzan los sabores del mar.' },
+  { id:3, nombre:'Ensalada César',     cat:'Entradas',    precio:2100, emoji:'🥗', ingredientes:['Lechuga romana','Pan tostado','Parmesano','Aderezo César','Anchoas'], cals:310, prot:'8g', grasa:'24g', tags:['Sin gluten'], warns:['Contiene lacteos','Contiene gluten'], ia:'Para la ensalada César, un Pinot Grigio ligero y mineral de Italia será tu mejor aliado. Su frescura equilibra perfectamente el aderezo cremoso sin opacarlo.' },
+  { id:4, nombre:'Pasta Carbonara',    cat:'Principales', precio:2800, emoji:'🍝', ingredientes:['Spaghetti','Panceta','Huevos','Parmesano','Pimienta negra'], cals:560, prot:'22g', grasa:'28g', tags:[], warns:['Contiene gluten','Contiene huevo','Contiene lácteos'], ia:'La carbonara pide un vino con buen cuerpo. Un Pecorino de los Abruzos o un Frascati Superiore del Lazio complementan la grasa de la panceta y la untuosidad del huevo.' },
+  { id:5, nombre:'Tiramisú',           cat:'Postres',     precio:1800, emoji:'🍮', ingredientes:['Mascarpone','Savoiardi','Café','Huevos','Azúcar','Cacao'], cals:480, prot:'9g', grasa:'30g', tags:['Vegetariano'], warns:['Contiene lácteos','Contiene huevo','Contiene gluten'], ia:'Para el tiramisú recomiendo un Marsala Dolce de Sicilia o un Vin Santo toscano. Su dulzura caramelada y notas a nuez crean una sinfonía perfecta con el café y el mascarpone.' },
+  { id:6, nombre:'Bruschetta',         cat:'Entradas',    precio:1500, emoji:'🍞', ingredientes:['Pan tostado','Tomate','Albahaca','Ajo','Aceite de oliva'], cals:220, prot:'5g', grasa:'8g', tags:['Vegano','Sin gluten'], warns:[], ia:'La bruschetta es perfecta con un Vermentino de Cerdeña. Sus notas cítricas y amargas encajan con la frescura del tomate y el ajo, creando un contraste vibrante.' },
+];
+
+let mesas = [
+  { id:'m1', numero:1, estado:'abierta', comensales:['Ana García','Carlos Rodríguez','María López','Juan Martínez'], pedidos:[{nombre:'Risotto de Hongos',precio:3200,comensal:'Ana García'},{nombre:'Salmón Grillado',precio:4500,comensal:'Ana García'},{nombre:'Ensalada César',precio:2100,comensal:'Carlos Rodríguez'},{nombre:'Pasta Carbonara',precio:2800,comensal:'María López'},{nombre:'Tiramisú',precio:1800,comensal:'María López'},{nombre:'Bruschetta',precio:1500,comensal:'Juan Martínez'}] },
+  { id:'m3', numero:3, estado:'abierta', comensales:['Sofía Herrera','Diego Torres'], pedidos:[{nombre:'Ensalada César',precio:2100,comensal:'Sofía Herrera'},{nombre:'Bruschetta',precio:1500,comensal:'Diego Torres'},{nombre:'Tiramisú',precio:1800,comensal:'Diego Torres'},{nombre:'Pasta Carbonara',precio:2800,comensal:'Sofía Herrera'}] },
+  { id:'m5', numero:5, estado:'cerrando', comensales:['Luis Pérez','Carmen Vidal','Rodrigo Sosa','Valeria Ruiz','Tomás Gil','Paula Mora'], pedidos:[] },
+];
+
+let currentMesa = null;
+let currentPlato = null;
+let selectedComensal = null;
+let currentPagoPax = null;
+let activeCategory = 'Todos';
+let paxTags = [];
+
+// payment mode state per mesa
+const paymentModeByMesa = {};   // 'individual' | 'grupal'
+const pagoState = {};           // { [comensal]: true } for individual
+let grupalPagado = {};          // { [mesaId]: true } for group payment
+let currentPagoMode = 'individual'; // context for registrarPago
+
+// ─── NAVIGATION ──────────────────────────────────────────────────────────────
+
+function navigate(screenId) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(screenId).classList.add('active');
+  if (screenId === 'screen-dashboard') renderDashboard();
+  if (screenId === 'screen-menu') renderMenu();
+  if (screenId === 'screen-checkout') renderCheckout();
+}
+
+// ─── MODALS ───────────────────────────────────────────────────────────────────
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id, evt) {
+  if (!evt || evt.target.classList.contains('modal-overlay')) {
+    document.getElementById(id).classList.remove('open');
+    selectedComensal = null;
+  }
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+
+function renderDashboard() {
+  const list = document.getElementById('mesas-list');
+  list.innerHTML = '';
+  const activas = mesas.filter(m => m.estado === 'abierta').length;
+  const total = mesas.reduce((s, m) => s + mesaTotal(m), 0);
+  const personas = mesas.reduce((s, m) => s + m.comensales.length, 0);
+  document.getElementById('stat-activas').textContent = activas;
+  document.getElementById('stat-total').textContent = '$' + total.toLocaleString('es-AR');
+  document.getElementById('stat-personas').textContent = personas;
+  mesas.forEach(m => {
+    const tot = mesaTotal(m);
+    const div = document.createElement('div');
+    div.className = 'mesa-card';
+    div.innerHTML = `
+      <div class="mesa-card-top">
+        <div class="mesa-avatar">${m.numero}</div>
+        <div class="mesa-info">
+          <div class="mesa-name">Mesa ${m.numero}</div>
+          <div class="mesa-pax">👤 ${m.comensales.length} comensales</div>
+        </div>
+        <span class="badge ${m.estado}">${m.estado}</span>
+      </div>
+      <div class="divider"></div>
+      <div class="mesa-total-label">Total acumulado</div>
+      <div class="mesa-total-val">$${tot.toLocaleString('es-AR')}</div>
+    `;
+    div.onclick = () => openMesa(m);
+    list.appendChild(div);
+  });
+}
+
+function mesaTotal(m) {
+  return m.pedidos.reduce((s, p) => s + p.precio, 0);
+}
+
+function openMesa(m) {
+  currentMesa = m;
+  document.getElementById('menu-title').textContent = 'Mesa ' + m.numero;
+  document.getElementById('menu-sub').textContent = m.comensales.length + ' comensales';
+  document.getElementById('checkout-sub').textContent = 'Mesa ' + m.numero;
+  navigate('screen-menu');
+}
+
+// ─── MENU ────────────────────────────────────────────────────────────────────
+
+function renderMenu() {
+  const cats = ['Todos', ...new Set(menuData.map(i => i.cat))];
+  const chipsRow = document.getElementById('chips-row');
+  chipsRow.innerHTML = cats.map(c =>
+    `<div class="chip${c===activeCategory?' active':''}" onclick="setCategory('${c}')">${c}</div>`
+  ).join('');
+  renderMenuItems();
+}
+
+function setCategory(cat) {
+  activeCategory = cat;
+  renderMenu();
+}
+
+function filterMenu() { renderMenuItems(); }
+
+function renderMenuItems() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  let items = menuData;
+  if (activeCategory !== 'Todos') items = items.filter(i => i.cat === activeCategory);
+  if (q) items = items.filter(i => i.nombre.toLowerCase().includes(q));
+  const list = document.getElementById('menu-list');
+  list.innerHTML = '';
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'menu-item';
+    div.innerHTML = `
+      <div class="menu-img">${item.emoji}</div>
+      <div class="menu-info">
+        <div class="menu-name">${item.nombre}</div>
+        <div class="menu-cat">${item.cat}</div>
+        <div class="menu-price">$${item.precio.toLocaleString('es-AR')}</div>
+      </div>
+      <span style="font-size:20px;color:var(--border);">›</span>
+    `;
+    div.onclick = () => openAsignar(item);
+    list.appendChild(div);
+  });
+}
+
+// ─── ASIGNAR PEDIDO ──────────────────────────────────────────────────────────
+
+function openAsignar(item) {
+  currentPlato = item;
+  selectedComensal = null;
+  document.getElementById('sheet-img').textContent = item.emoji;
+  document.getElementById('sheet-nombre').textContent = item.nombre;
+  document.getElementById('sheet-precio').textContent = '$' + item.precio.toLocaleString('es-AR');
+  const list = document.getElementById('comensales-list');
+  list.innerHTML = '';
+  currentMesa.comensales.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'comensal-option';
+    div.innerHTML = `<div class="avatar-s">👤</div><span>${c}</span>`;
+    div.onclick = () => {
+      document.querySelectorAll('.comensal-option').forEach(el => el.classList.remove('selected'));
+      div.classList.add('selected');
+      selectedComensal = c;
+    };
+    list.appendChild(div);
+  });
+  openModal('modal-asignar');
+}
+
+function asignarPedido() {
+  if (!selectedComensal) { showToast('⚠️ Seleccioná un comensal'); return; }
+  currentMesa.pedidos.push({ nombre: currentPlato.nombre, precio: currentPlato.precio, comensal: selectedComensal });
+  closeModal('modal-asignar');
+  showToast(`✅ ${currentPlato.nombre} asignado a ${selectedComensal}`);
+  renderDashboard();
+}
+
+function goDetalle() {
+  closeModal('modal-asignar');
+  showDetalle(currentPlato);
+}
+
+// ─── DETALLE PLATO ────────────────────────────────────────────────────────────
+
+function showDetalle(item) {
+  currentPlato = item;
+  document.getElementById('detalle-hero').textContent = item.emoji;
+  document.getElementById('detalle-nombre').textContent = item.nombre;
+  document.getElementById('detalle-precio').textContent = '$' + item.precio.toLocaleString('es-AR');
+  document.getElementById('detalle-cat').textContent = item.cat;
+  document.getElementById('detalle-ingredientes').innerHTML =
+    item.ingredientes.map(i => `<span style="background:#F0F4F8;border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text-sub);font-weight:600;">${i}</span>`).join('');
+  document.getElementById('detalle-nutr').innerHTML = `
+    <div class="nutr-box"><div class="nutr-val">${item.cals}</div><div class="nutr-label">Calorías</div></div>
+    <div class="nutr-box"><div class="nutr-val">${item.prot}</div><div class="nutr-label">Proteínas</div></div>
+    <div class="nutr-box"><div class="nutr-val">${item.grasa}</div><div class="nutr-label">Grasas</div></div>
+  `;
+  document.getElementById('detalle-tags').innerHTML =
+    item.tags.map(t => `<span class="tag green">✓ ${t}</span>`).join('') || '<span style="font-size:12px;color:var(--text-sub);">Sin etiquetas</span>';
+  document.getElementById('detalle-warns').innerHTML =
+    item.warns.map(w => `<span class="tag yellow">⚠ ${w}</span>`).join('') || '<span class="tag green">✓ Sin advertencias</span>';
+  const iaEl = document.getElementById('ia-text');
+  iaEl.innerHTML = `
+    <div class="shimmer" style="height:12px;width:90%;margin-bottom:8px;"></div>
+    <div class="shimmer" style="height:12px;width:75%;margin-bottom:8px;"></div>
+    <div class="shimmer" style="height:12px;width:85%;"></div>
+  `;
+  setTimeout(() => {
+    iaEl.innerHTML = `<span style="font-size:13px;color:var(--text-sub);line-height:1.6;">${item.ia}</span>`;
+  }, 1800);
+  navigate('screen-detalle');
+}
+
+// ─── CHECKOUT ────────────────────────────────────────────────────────────────
+
+function setPaymentMode(mode) {
+  if (!currentMesa) return;
+  paymentModeByMesa[currentMesa.id] = mode;
+  document.getElementById('btn-mode-individual').classList.toggle('active', mode === 'individual');
+  document.getElementById('btn-mode-grupal').classList.toggle('active', mode === 'grupal');
+  renderCheckoutContent();
+}
+
+function renderCheckout() {
+  if (!currentMesa) return;
+  const m = currentMesa;
+  const grandTotal = mesaTotal(m);
+
+  document.getElementById('co-total').textContent = '$' + grandTotal.toLocaleString('es-AR');
+
+  // restore toggle state
+  const mode = paymentModeByMesa[m.id] || 'individual';
+  document.getElementById('btn-mode-individual').classList.toggle('active', mode === 'individual');
+  document.getElementById('btn-mode-grupal').classList.toggle('active', mode === 'grupal');
+
+  updateCheckoutTotals();
+  renderCheckoutContent();
+}
+
+function renderCheckoutContent() {
+  if (!currentMesa) return;
+  const mode = paymentModeByMesa[currentMesa.id] || 'individual';
+  if (mode === 'individual') {
+    renderIndividualCheckout();
+  } else {
+    renderGrupalCheckout();
+  }
+}
+
+function updateCheckoutTotals() {
+  if (!currentMesa) return;
+  const m = currentMesa;
+  const grandTotal = mesaTotal(m);
+  const mode = paymentModeByMesa[m.id] || 'individual';
+
+  let totalPagado = 0;
+
+  if (mode === 'grupal') {
+    totalPagado = grupalPagado[m.id] ? grandTotal : 0;
+  } else {
+    const byPax = {};
+    m.comensales.forEach(c => { byPax[c] = 0; });
+    m.pedidos.forEach(p => { byPax[p.comensal] = (byPax[p.comensal] || 0) + p.precio; });
+    Object.entries(byPax).forEach(([nombre, sub]) => {
+      if (pagoState[nombre]) totalPagado += sub;
+    });
+  }
+
+  document.getElementById('co-total').textContent = '$' + grandTotal.toLocaleString('es-AR');
+  document.getElementById('co-pagado').textContent = '$' + totalPagado.toLocaleString('es-AR');
+  document.getElementById('co-pendiente').textContent = '$' + (grandTotal - totalPagado).toLocaleString('es-AR');
+}
+
+// ── INDIVIDUAL MODE ──
+function renderIndividualCheckout() {
+  const m = currentMesa;
+  const content = document.getElementById('checkout-content');
+  content.innerHTML = '';
+
+  const byPax = {};
+  m.comensales.forEach(c => { byPax[c] = []; });
+  m.pedidos.forEach(p => {
+    if (!byPax[p.comensal]) byPax[p.comensal] = [];
+    byPax[p.comensal].push(p);
+  });
+
+  Object.entries(byPax).forEach(([nombre, pedidos]) => {
+    const subtotal = pedidos.reduce((s,p) => s+p.precio, 0);
+    const paid = pagoState[nombre] === true;
+    const div = document.createElement('div');
+    div.className = 'pax-card';
+    const itemsHtml = pedidos.map(p =>
+      `<div class="pax-item"><span>${p.nombre}</span><span>$${p.precio.toLocaleString('es-AR')}</span></div>`
+    ).join('') || '<div class="pax-item"><span style="font-style:italic;color:var(--text-sub);">Sin pedidos</span><span></span></div>';
+
+    div.innerHTML = `
+      <div class="pax-header${paid?' paid-border':''}">
+        <div class="pax-avatar">${paid?'✅':'👤'}</div>
+        <div class="pax-name">${nombre}</div>
+        <div style="text-align:right;">
+          <div class="pax-total">$${subtotal.toLocaleString('es-AR')}</div>
+          ${paid
+            ? `<button class="btn-pagado">✓ Pagado</button>`
+            : `<button class="btn-pagar" onclick="abrirPago('${nombre}',${subtotal},'individual')">Registrar pago</button>`}
+        </div>
+      </div>
+      <div class="pax-items">${itemsHtml}</div>
+    `;
+    content.appendChild(div);
+  });
+}
+
+// ── GRUPAL MODE ──
+function renderGrupalCheckout() {
+  const m = currentMesa;
+  const content = document.getElementById('checkout-content');
+  content.innerHTML = '';
+  const grandTotal = mesaTotal(m);
+  const isPaid = grupalPagado[m.id] === true;
+
+  // per-person breakdown
+  const byPax = {};
+  m.comensales.forEach(c => { byPax[c] = 0; });
+  m.pedidos.forEach(p => { byPax[p.comensal] = (byPax[p.comensal] || 0) + p.precio; });
+
+  const breakdownRows = Object.entries(byPax).map(([nombre, sub]) => `
+    <div class="group-breakdown-row">
+      <div class="gbr-name"><div class="gbr-dot"></div><span>${nombre}</span></div>
+      <span class="gbr-amt">$${sub.toLocaleString('es-AR')}</span>
+    </div>
+  `).join('');
+
+  const card = document.createElement('div');
+  card.className = 'group-pay-card';
+  card.innerHTML = `
+    <div class="group-pay-header">
+      <div class="group-icon-circle">🤝</div>
+      <div>
+        <div class="group-pay-label">Total a pagar</div>
+        <div class="group-pay-amount">$${grandTotal.toLocaleString('es-AR')}</div>
+        <div class="group-pay-pax-label">${m.comensales.length} comensales · $${grandTotal > 0 ? Math.round(grandTotal / m.comensales.length).toLocaleString('es-AR') : 0} c/u aprox.</div>
+      </div>
+    </div>
+
+    <div class="group-pay-breakdown">
+      <div class="group-breakdown-title">Desglose por comensal</div>
+      ${breakdownRows}
+    </div>
+
+    <div class="group-pay-actions">
+      ${isPaid
+        ? `<div class="group-paid-banner">✅ ¡Cuenta pagada! Mesa lista para liberar.</div>`
+        : `<div class="group-pay-note">💡 Al registrar el pago grupal, se marcará la cuenta completa como saldada independientemente de quién realice el pago.</div>
+           <button class="btn-group-pay" onclick="abrirPagoGrupal(${grandTotal})">
+             💳&nbsp; Registrar pago grupal · $${grandTotal.toLocaleString('es-AR')}
+           </button>`
+      }
+    </div>
+  `;
+  content.appendChild(card);
+}
+
+// ─── PAGO ────────────────────────────────────────────────────────────────────
+
+function abrirPago(nombre, monto, mode) {
+  currentPagoPax = nombre;
+  currentPagoMode = mode || 'individual';
+  document.getElementById('pago-title-label').textContent = 'Registrar Pago';
+  document.getElementById('pago-nombre').textContent = `${nombre} – $${monto.toLocaleString('es-AR')}`;
+  openModal('modal-pago');
+}
+
+function abrirPagoGrupal(total) {
+  currentPagoMode = 'grupal';
+  document.getElementById('pago-title-label').textContent = 'Pago Grupal';
+  document.getElementById('pago-nombre').textContent = `Todos los comensales · $${total.toLocaleString('es-AR')}`;
+  openModal('modal-pago');
+}
+
+function registrarPago(metodo) {
+  closeModal('modal-pago');
+
+  if (currentPagoMode === 'grupal') {
+    grupalPagado[currentMesa.id] = true;
+    currentMesa.estado = 'finalizada';
+    showToast('🎉 ¡Pago grupal registrado! Mesa liberada.');
+  } else {
+    pagoState[currentPagoPax] = true;
+    showToast(`💰 Pago de ${currentPagoPax} registrado (${metodo})`);
+    // check all paid
+    if (currentMesa) {
+      const allPaid = currentMesa.comensales.every(c => pagoState[c]);
+      if (allPaid) {
+        currentMesa.estado = 'finalizada';
+        showToast('🎉 ¡Cuenta cerrada! Mesa liberada.');
+      }
+    }
+  }
+
+  updateCheckoutTotals();
+  renderCheckoutContent();
+  renderDashboard();
+}
+
+// ─── NUEVA MESA ───────────────────────────────────────────────────────────────
+
+function addPaxTag() {
+  const inp = document.getElementById('nm-pax-input');
+  const val = inp.value.trim();
+  if (!val || paxTags.includes(val)) { inp.value = ''; return; }
+  paxTags.push(val);
+  inp.value = '';
+  renderPaxTags();
+}
+document.getElementById('nm-pax-input').addEventListener('keydown', e => { if (e.key === 'Enter') addPaxTag(); });
+
+function removePaxTag(i) {
+  paxTags.splice(i, 1);
+  renderPaxTags();
+}
+
+function renderPaxTags() {
+  document.getElementById('nm-tags').innerHTML = paxTags.map((p,i) =>
+    `<div class="pax-tag">${p}<span class="remove" onclick="removePaxTag(${i})">✕</span></div>`
+  ).join('');
+}
+
+function crearMesa() {
+  const num = parseInt(document.getElementById('nm-numero').value);
+  if (!num) { showToast('⚠️ Ingresá el número de mesa'); return; }
+  if (paxTags.length === 0) { showToast('⚠️ Agregá al menos un comensal'); return; }
+  if (mesas.find(m => m.numero === num)) { showToast('⚠️ Ya existe una mesa con ese número'); return; }
+  mesas.push({ id:'m'+num, numero:num, estado:'abierta', comensales:[...paxTags], pedidos:[] });
+  paxTags = [];
+  document.getElementById('nm-numero').value = '';
+  renderPaxTags();
+  closeModal('modal-nueva-mesa');
+  showToast(`✅ Mesa ${num} creada`);
+  renderDashboard();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+
+window.addEventListener('DOMContentLoaded', () => {
+  const menuScreen = document.getElementById('screen-menu');
+  const fab2 = document.createElement('div');
+  fab2.className = 'fab';
+  fab2.style.cssText = 'bottom:22px;right:22px;font-size:18px;';
+  fab2.title = 'Cerrar cuenta';
+  fab2.textContent = '💳';
+  fab2.onclick = () => navigate('screen-checkout');
+  menuScreen.appendChild(fab2);
+  renderDashboard();
+});
+</script>
+</body>
+</html>
