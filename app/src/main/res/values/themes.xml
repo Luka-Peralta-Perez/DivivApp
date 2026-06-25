@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        Tema principal de DivivApp.
+        Extiende Theme.SplashScreen para que installSplashScreen() en MainActivity
+        pueda configurar el fondo y el icono del splash nativo de Android.
+        windowSplashScreenBackground: color teal de la paleta de DivivApp (#29B6C5).
+        windowSplashScreenAnimatedIcon: icono de la app (ic_launcher_foreground).
+        postSplashScreenTheme: tema aplicado una vez que el splash desaparece.
+    -->
+    <style name="Theme.DivivApp" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#29B6C5</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="windowSplashScreenIconBackgroundColor">#29B6C5</item>
+        <item name="postSplashScreenTheme">@style/Theme.DivivApp.Main</item>
+    </style>
+
+    <!-- Tema aplicado despues del splash, sin ActionBar para que Compose tenga control total. -->
+    <style name="Theme.DivivApp.Main" parent="android:Theme.Material.Light.NoActionBar" />
+</resources>

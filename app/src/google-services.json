@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "657615653102",
+    "project_id": "dividapp-5f53e",
+    "storage_bucket": "dividapp-5f53e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:657615653102:android:026c7ca6eba18f68930bff",
+        "android_client_info": {
+          "package_name": "com.example.divivapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "657615653102-7ld4sjhk90464ohj4re6u7sn65edl7d8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.divivapp",
+            "certificate_hash": "199a6edf8394d79cf7f3d889ccc711b3a71e469f"
+          }
+        },
+        {
+          "client_id": "657615653102-tnb725t5ncc6bv8i6slf0mbjjk1vlt62.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDw3PAezPNt0FW1Ydvkn_f6IgohgRjJc-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "657615653102-tnb725t5ncc6bv8i6slf0mbjjk1vlt62.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
