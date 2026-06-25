@@ -54,6 +54,11 @@ class MesasRepositoryTest {
 
     @Before
     fun setUp() {
+        io.mockk.mockkStatic(android.util.Log::class)
+        io.mockk.every { android.util.Log.d(any(), any()) } returns 0
+        io.mockk.every { android.util.Log.e(any(), any(), any()) } returns 0
+        io.mockk.every { android.util.Log.e(any(), any()) } returns 0
+        
         context = mockk(relaxed = true)
         mesaDao = mockk(relaxed = true)
         edamamApiService = mockk()
